@@ -1,4 +1,5 @@
 import { ITEM_HEIGHT, MAX_ITEM_COUNT } from "./config";
+import { update, updatePaddingSet } from "./render";
 import { getData } from "./utils";
 
 const $state = {};
@@ -14,7 +15,7 @@ const data = {
     }
 }
 
-export function reactive () {
+export function reactive (list) {
     Object.defineProperties($state, {
         dataSoucre: {
             get () {
@@ -23,6 +24,7 @@ export function reactive () {
             set (newValue) {
                 data.dataSoucre = newValue;
                 // set currentData
+                setCurrentData();
             }
         },
         currentData: {
@@ -32,6 +34,7 @@ export function reactive () {
             set (newValue) {
                 data.currentData = newValue;
                 // update view
+                update($state.currentData, list);
             }
         },
         startIndex: {
@@ -41,6 +44,11 @@ export function reactive () {
             set (newValue) {
                 if($state.startIndex !== newValue) {
                     data.startIndex = newValue;
+                    setCurrentData();
+                    $state.endIndex >= $state.dataSoucre.length - 1 
+                    && 
+                    setDataSource($state.dataSoucre.length + 1, $state.dataSoucre.length * 2)  // 没有多余数据
+                    setPaddingSet();
                     // 当startIndex 变更的时候  视图就要变化
                     // 当endIndex >= dataSoucre的长度-1  更新视图  添加padding
                 }
@@ -53,10 +61,11 @@ export function reactive () {
         },
         paddingSet: {
             get () {
-                return data.paddingSet
+                return data.paddingSet;
             },
             set (newValue) {
                 data.paddingSet = newValue;
+                updatePaddingSet($state.paddingSet, list)
                 // 更新 padding
             }
         }
